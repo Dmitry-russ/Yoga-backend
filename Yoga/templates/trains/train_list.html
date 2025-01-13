@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}
+    <h1>Список поездов.</h1><br>
+{% endblock %}
+
+
+{% block content %}
+    {% if main_delete and admin %}
+        {% for main in main_delete %}
+            <div class="alert alert-danger" role="alert">
+                <a type="button" class="btn btn-outline-dark"
+                   href="{% url 'train:mai_detail' mai_id=main.pk %}">Помечена на удаление
+                    инспекция {{ main.maintenance.number }} {{ main.maintenance.type }} {{ main.mileage }}
+                    поезд {{ main.train }}</a>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <a type="button" class="btn btn-outline-light"
+       href="{% url 'train:mai_export_all' %}">Выгрузить все инспекции в Excel</a>
+    <a type="button" class="btn btn-outline-light"
+       href="{% url 'train:train_small_report' %}">Краткий отчет по пробегам</a>
+    <hr>
+    {% for train in page_obj %}
+        <a type="button" class="btn btn-outline-light"
+           href="{% url 'train:train_detail' train.id %}"
+        >{{ train }}</a>
+
+        <a type="button" class="btn btn-outline-light"
+           href="{% url 'train:cases_list' train.id %}"> Количество замечаний: {{ train.cases.count }}</a>
+
+        <a type="button" class="btn btn-outline-light"
+           href="{% url 'train:mai_list' train.id %}"> ТО, 30 суточные, лето, зима: {{ train.maintenance.count }}</a>
+
+        {% if not forloop.last %}
+            <hr>
+        {% endif %}
+    {% endfor %}
+    <hr>
+    <a type="button" class="btn btn-outline-light"
+       href="{% url 'train:train_create' %}">Добавить новый поезд</a>
+    <hr>
+    {% include 'includes/paginator.html' %}
+{% endblock %}

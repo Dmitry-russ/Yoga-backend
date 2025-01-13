@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load dict_key %}
+{% block title %}Таблица учета средств измерения.{% endblock %}
+{% block content %}
+
+
+    Фильтрация данных:
+    <br>
+    <form action="" method="get">
+        {{ filter_form.as_p }}
+        <input type="submit" value="Отфильтровать" class="btn btn-outline-light">
+        <a type="button" class="btn btn-outline-light"
+           href="{% url 'metrolog:metrolog_small_report' %}">Сбросить фильтры</a>
+    </form>
+    <br>
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                <div class="alert alert-success" role="alert">
+            {% elif message.tags == 'error' %}
+                <div class="alert alert-danger" role="alert">
+            {% elif message.tags == 'info' %}
+                <div class="alert alert-warning" role="alert">
+            {% else %}
+                <div class="alert alert-secondary" role="alert">
+            {% endif %}
+        {{ message|safe }}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover table-bordered table-sm align-middle">
+        <thead class="align-middle">
+        <tr>
+            <th class="col">Описание</th>
+            <th class="col">Серийный номер</th>
+            <th class="col">Локация</th>
+            <th class="col">Расположение</th>
+            <th class="col">Дата выдачи сертификата</th>
+            <th class="col">Дата окончания сертификата</th>
+            <th class="col">Осталось дней</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <p>
+
+            {% for metr in metrolog %}
+
+                {% if metr.days < danger_days %}
+                    <tr class="table-danger">
+                        {% elif metr.days < warning_days %}
+                    <tr class="table-primary">
+                        {% else %}
+                    <tr>
+                {% endif %}
+            <td class="col"><a type="button" style=" text-align:left"
+                               class="btn btn-outline-dark text-left"
+                               href="{% url 'metrolog:metrolog_detail' metr.id %}"> {{ metr.description }} </a></td>
+            <td>{{ metr.seral_number }}</td>
+            <td>{{ metr.location }}</td>
+            <td>{{ metr.place }}</td>
+            <td>{{ metr.date_control|date:"d.m.Y" }}</td>
+            <td>{{ metr.date_end|date:"d.m.Y" }}</td>
+            <td>{{ metr.days }}</td>
+            </tr>
+
+            {% endfor %}
+        <p>
+
+            <a type="button" class="btn btn-outline-light"
+               href="{% url 'metrolog:metrolog_create' %}">Создать новый СИ в базе</a>
+            <a type="button" class="btn btn-outline-light"
+               href="{% url 'metrolog:mai_export_si' %}">Выгрузить базу в Excel</a>
+
+        </tbody>
+    </table>
+</div>
+
+{% include 'includes/paginator.html' %}
+{% endblock %}

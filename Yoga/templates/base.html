@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+{% load static %}
+{% load dict_key %}
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="msapplication-TileColor" content="#000">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+</head>
+
+
+{% include 'includes/header.html' %}
+
+
+<center>
+    <h1>{% block title %}{% endblock %}</h1>
+</center>
+
+
+<body class="p-3 mb-2 bg-secondary text-white">
+
+<main>
+    <div>
+        <p>
+            {% block name %}{% endblock %}
+        </p>
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+</body>
+{% include 'includes/footer.html' %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load dict_key %}
+{% block title %}Отчет по пробегам{% endblock %}
+{% block content %}
+
+    {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-success" role="alert">
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-danger" role="alert">
+                {% elif message.tags == 'info' %}
+                    <div class="alert alert-warning" role="alert">
+                {% else %}
+                    <div class="alert alert-secondary" role="alert">      
+                {% endif %}
+                        {{ message|safe }}
+                    </div>              
+            {% endfor %}
+    {% endif %}
+
+    <div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p>
+                <input type="file" class="form-control" name="myfile">
+            </p>
+            <p>
+                <button type="submit" class="btn btn-light" onclick="clicked(event)" name="myfilebut">Загрузить данные
+                    из файла
+                </button>
+            </p>
+        </form>
+    </div>
+<br>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th scope="col">Серия</th>
+            <th scope="col">Номер</th>
+            <th scope="col">Арендатор</th>
+            <th scope="col">Пробег</th>
+            <th scope="col">Дата считывания пробега</th>
+            <th scope="col">Пробег на последней инспекции</th>
+            <th scope="col">Межремонтный от последнего ТО</th>
+        </tr>
+        </thead>
+        <tbody>
+        <form method="post" enctype="multipart/form-data"
+              action="{% url 'train:train_small_report' %}">
+            {% csrf_token %}
+
+            {{ formset.management_form }}
+            <p>
+
+                {% for form in formset %}
+                    {% if form.errors %}
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <div class="alert alert-danger">
+                                    <strong>В форме ошибки! Данные не сохранены.</strong>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+                    
+
+                    
+                    <tr>
+                        <td>{{ form.id }}{{ form.serial.as_hidden }}{{ form.instance.serial }}</td>
+                        <td>{{ form.number.as_hidden }}{{ form.instance.number }}{{ form.day_mileage.as_hidden }}</td>
+                        <td>{{ form.renter }}{{ form.renter.errors }}</td>
+                        <td>{{ form.mileage }}{{ form.mileage.errors }}</td>
+                        <td>{{ form.mileage_date }}{{ form.mileage_date.errors }}</td>
+                        {% with train=form.instance %}
+                            {% with mai=donemai|dict_key:train %}
+                                
+                                <td>{{ mai.mileage }}{{ form.instance.train }}</td>
+                                {% if mai.control_diff == 'danger' %}
+                                <td class="table-danger">
+                                {% elif mai.control_diff == 'warning' %}
+                                <td class="table-success">
+                                {% else %}    
+                                <td>
+                                {% endif %} 
+                                    {{ mai.diff }}</td>
+                            {% endwith %}
+                        {% endwith %}
+
+
+                    </tr>
+
+                {% endfor %}
+            <p>
+                <button type="submit" class="btn btn-light">
+                    Сохранить
+                </button>
+        </form>
+        </tbody>
+    </table>
+
+    {% include 'includes/paginator.html' %}
+    <script>
+        function clicked(e) {
+            if (!confirm('Данные о пробегах поездов будут перезаписаны. Продолжить?')) {
+                e.preventDefault();
+            }
+        }
+    </script>
+{% endblock %}
