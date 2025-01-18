@@ -6,6 +6,7 @@ from .views import (UserRegistration,
                     UserDetail,
                     UserList,
                     UserDelete,
+                    UserConversation,
                     # UserDeleteAll,
                     )
 
@@ -23,5 +24,6 @@ urlpatterns = [
     path('user/<int:user_id>/', UserDetail.as_view(), name='user-detail'),
     path('users/', UserList.as_view(), name='user-list'),
     path('delete/<int:user_id>/', UserDelete.as_view(), name='user-delete'),
+    path('conversation/<str:username>/', UserConversation.as_view(), name='user-conversation'),
     #  path('delete-all/', UserDeleteAll.as_view(), name='user-delete-all'),
 ]

@@ -1,10 +1,10 @@
-from rest_framework import status
+from rest_framework import status, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
 from drf_spectacular.utils import extend_schema, OpenApiResponse
-from .serializers import UserSerializer
-from users.models import User
+from .serializers import UserSerializer, UserDataSerializer
+from users.models import User, UserData
 
 
 class UserRegistration(APIView):
@@ -33,7 +33,7 @@ class UserRegistration(APIView):
 
 
 class UserList(APIView):
-
+    filter_backends = [filters.OrderingFilter]
     permission_classes = [IsAdminUser]
 
     @extend_schema(
@@ -44,7 +44,7 @@ class UserList(APIView):
         }
     )
     def get(self, request):
-        users = User.objects.all()
+        users = User.objects.all().order_by('username')
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
@@ -91,6 +91,41 @@ class UserDelete(APIView):
                 return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
         return Response({"error": "User ID not provided"}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class UserConversation(APIView):
+    permission_classes = [IsAdminUser]
+
+    @extend_schema(
+        summary="Получение и создание диалога пользователя.",
+        description="Список сообщений чата пользваотеля.",
+        responses={
+            200: OpenApiResponse(response=UserDataSerializer(many=True), description="Чат пользователя"),
+            201: OpenApiResponse(response=UserDataSerializer, description="Сообщение создано"),
+            400: OpenApiResponse(description="Ошибки валидации")
+        }
+    )
+    def get(self, request, username):
+        if username:
+            try:
+                user = User.objects.get(username=username)
+                conversation = UserData.objects.filter(user=user).order_by('message_date_time')
+                serializer = UserDataSerializer(conversation, many=True)
+                return Response(serializer.data)
+            except User.DoesNotExist:
+                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "User ID not provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, username):
+        user = User.objects.get(username=username)
+        data = request.data
+        data['user'] = user.id
+        print(request.data)
+        serializer = UserDataSerializer(data=data)
+        # serializer = UserDataSerializer(user=user.id)
+        if serializer.is_valid():
+            message = serializer.save()
+            return Response({"status": "Message created", "id": message.user.id}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # class UserDeleteAll(APIView):
 #     @extend_schema(
