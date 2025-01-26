@@ -2,13 +2,9 @@ from django.urls import path
 from drf_spectacular.views import (SpectacularAPIView,
                                    SpectacularRedocView,
                                    SpectacularSwaggerView,)
-from .views import (UserRegistration,
-                    UserDetail,
-                    UserList,
-                    UserDelete,
-                    UserConversation,
-                    # UserDeleteAll,
-                    )
+from .views import (UserRegistration, UserDetail, UserList,
+                    UserDelete, UserConversation, ScheduleView,
+                    UserDataView, PlanDataView,)
 
 app_name = 'api'
 
@@ -25,5 +21,8 @@ urlpatterns = [
     path('users/', UserList.as_view(), name='user-list'),
     path('delete/<int:user_id>/', UserDelete.as_view(), name='user-delete'),
     path('conversation/<str:username>/', UserConversation.as_view(), name='user-conversation'),
-    #  path('delete-all/', UserDeleteAll.as_view(), name='user-delete-all'),
+    path('schedule/', ScheduleView.as_view(), name='schedule'),
+    path('userdata/<str:username>/', UserDataView.as_view(), name='userdata'),
+    path('userdata/<str:username>/<int:id>/', UserDataView.as_view(), name='userdata'),
+    path('plan/', PlanDataView.as_view(), name='plan'),
 ]
