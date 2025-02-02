@@ -6,7 +6,7 @@ es_formats.DATETIME_FORMAT = "d M Y H:i"
 
 
 class ScheduleDataAdmin(admin.ModelAdmin):
-    list_display = ('yoga', 'start_time', 'week_day', 'teacher',)
+    list_display = ('yoga', 'start_time', 'week_day', 'teacher', 'cost', 'cost_first',)
     search_fields = ('yoga', 'week_day',)
     list_filter = ('yoga', 'week_day',)
     empty_value_display = '-пусто-'

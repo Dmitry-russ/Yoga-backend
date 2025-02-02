@@ -36,6 +36,7 @@ class UserData(CreatedModel):
                                       null=True,
                                       blank=True,
                                       related_name='userexercise', )
+    chat_id = models.IntegerField(verbose_name="Номер чата пользователя.", null=True, blank=True)
 
     def __str__(self) -> str:
         return self.message

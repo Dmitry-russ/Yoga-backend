@@ -130,6 +130,7 @@ class UserConversation(APIView):
 
 
 class ScheduleView(APIView):
+    '''Получаем расписание по запросу пользователя.'''
     permission_classes = [IsAdminUser]
 
     #  получение расписания на определнный день или на всю неделю
@@ -152,7 +153,7 @@ class ScheduleView(APIView):
                 serializer = ScheduleSerializer(schedule, many=True)
                 return Response(serializer.data)
 
-        # не нашли нужного совпадения, грузим все расписание
+        # если данные не были переданы то выводим все расписание
         schedule = Schedule.objects.all()
         serializer = ScheduleSerializer(schedule, many=True)
         return Response(serializer.data)
@@ -163,6 +164,7 @@ class ScheduleView(APIView):
         username = data.get('username')
         day_request = data.get('date')
         exercise_id = data.get('id')
+        chat_id = data.get('chat_id')
         user = User.objects.get(username=username)
 
         data = {
@@ -171,9 +173,9 @@ class ScheduleView(APIView):
             }
         data['user'] = user.id
         day_request = datetime.datetime.strptime(day_request, '%Y-%m-%d %H:%M:%S')
-        print(day_request)
         data['exercise_date'] = day_request
         data['exercise_type'] = int(exercise_id)
+        data['chat_id'] = int(chat_id)
 
         serializer = UserDataSerializer(data=data)
         if serializer.is_valid():
@@ -182,9 +184,20 @@ class ScheduleView(APIView):
             return Response({"status": "Запись на занятие создана.",
                              "id": message.id,
                              "exercise_type": exercise_type.yoga,
+                             "teacher": exercise_type.teacher,
                              "exercise_date": str(day_request)},
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ScheduleViewId(APIView):
+    """Получаю одно конкретное занятие из расписания."""
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, id):
+        exercise = Schedule.objects.get(id=int(id))
+        serializer = ScheduleSerializer(exercise)
+        return Response(serializer.data)
 
 
 class UserDataView(APIView):
@@ -218,26 +231,39 @@ class UserDataView(APIView):
 class PlanDataView(APIView):
     """Для вывода записанных на занятия людей."""
     def get(self, request):
-        schedule = Schedule.objects.all()
-        schedule_dict = {}
+        data = request.data
+        id = data.get('id')
+        if id:
+            # когда запрашивает пользователь выдаем одно занятие ивсех кто записан на это занятие
+            schedule = [Schedule.objects.get(id=id)]
+        else:
+            # выводим все занятия для даимна чтобы смотреть запись
+            schedule = Schedule.objects.all()
+        schedule_dict = {}  # итоговый словарь с занятием и записанными людми
         result = []
         for sch in schedule:
             yoga = sch.yoga
             start_time = sch.start_time
             week_day = sch.week_day
+            id = sch.id
+            teacher = sch.teacher
             users_dict = []
             schedule_dict = {
                 "yoga": yoga,
                 "start_time": start_time,
                 "week_day": week_day,
                 "users": users_dict,
+                "id": id,
+                "teacher": teacher,
+
             }
-            users = sch.userexercise.all()
+            users = sch.userexercise.all()  # получаем всех пользователей, записанных на занятие (через свзяь в модели)
             if users:
                 for user in users:
                     username = user.user.username
                     exercise_date = user.exercise_date
-                    users_dict.append({"username": username, "exercise_date": exercise_date})
+                    first_name = user.user.first_name
+                    users_dict.append({"username": username, "exercise_date": exercise_date, "first_name": first_name})
             schedule_dict["users"] = users_dict
             result.append(schedule_dict)
         return Response(result, status=status.HTTP_200_OK)
