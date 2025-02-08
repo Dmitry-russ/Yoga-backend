@@ -215,12 +215,15 @@ class UserDataView(APIView):
         serializer = UserDataSerializer(sign_up, many=True)
         return Response(serializer.data)
 
-    def delete(self, request, username, id):
+    def put(self, request, username, id):
+        data = request.data
+        messege = data[0].get('messege')
         try:
             sign_up = UserData.objects.get(id=id)
             exercise_date = sign_up.exercise_date
             exercise_type = sign_up.exercise_type
-            sign_up.delete()
+            sign_up.message = messege
+            sign_up.save()
             return Response({"status": "Sign_up deleted",
                              "exercise_date": exercise_date,
                              "exercise_type": exercise_type.yoga}, status=status.HTTP_200_OK)
@@ -263,7 +266,12 @@ class PlanDataView(APIView):
                     username = user.user.username
                     exercise_date = user.exercise_date
                     first_name = user.user.first_name
-                    users_dict.append({"username": username, "exercise_date": exercise_date, "first_name": first_name})
+                    message = user.message
+                    if message == 'запись на занятие':
+                        users_dict.append({"username": username,
+                                           "exercise_date": exercise_date,
+                                           "first_name": first_name,
+                                           "message": message})
             schedule_dict["users"] = users_dict
             result.append(schedule_dict)
         return Response(result, status=status.HTTP_200_OK)
