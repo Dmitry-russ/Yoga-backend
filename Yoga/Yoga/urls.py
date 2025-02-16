@@ -3,6 +3,8 @@ from django.contrib.auth.views import (PasswordChangeDoneView,
                                        PasswordResetDoneView)
 from django.urls import include, path
 
+app_name = 'Yoga'
+
 user_patterns = [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
