@@ -32,6 +32,7 @@ class Schedule(CreatedModel):
     sort_days = models.IntegerField(verbose_name="Для сортировки дней недели, понедельник = 0.", default=0)
     cost = models.TextField(verbose_name="Стоимость занятия.", null=True, blank=True)
     cost_first = models.TextField(verbose_name="Стоимость пробного занятия.", null=True, blank=True)
+    duration = models.TextField(verbose_name="Длительность занятия.", null=True, blank=True)
 
     class Meta:
         ordering = ['sort_days', 'start_time']

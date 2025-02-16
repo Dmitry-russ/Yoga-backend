@@ -94,7 +94,7 @@ DATE_FORMAT = "d-m-Y"
 
 USE_I18N = True
 
-# USE_TZ = True создает рпоблемы с базой
+# USE_TZ = True  создает проблемы с базой, пишет database connection isn't set to UTC
 
 USE_L10N = False
 
