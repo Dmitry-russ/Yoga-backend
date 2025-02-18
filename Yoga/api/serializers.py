@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
-        fields = ['id', 'yoga', 'start_time', 'week_day', 'teacher', 'sort_days', 'cost', 'cost_first']
+        fields = ['id', 'yoga', 'start_time', 'week_day', 'teacher', 'sort_days', 'cost', 'cost_first', 'duration']
         ordering = ['sort_days', 'start_time']
 
 
