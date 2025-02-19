@@ -185,6 +185,7 @@ class ScheduleView(APIView):
                              "id": message.id,
                              "exercise_type": exercise_type.yoga,
                              "teacher": exercise_type.teacher,
+                             "duration": exercise_type.duration,
                              "exercise_date": str(day_request)},
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
