@@ -37,6 +37,8 @@ class UserData(CreatedModel):
                                       blank=True,
                                       related_name='userexercise', )
     chat_id = models.IntegerField(verbose_name="Номер чата пользователя.", null=True, blank=True)
+    name = models.CharField(verbose_name="Имя.", null=True, blank=True, max_length=30)
+    phone = models.CharField(verbose_name="Номер телефона.", null=True, blank=True, max_length=30)
 
     def __str__(self) -> str:
         return self.message

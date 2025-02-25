@@ -165,6 +165,8 @@ class ScheduleView(APIView):
         day_request = data.get('date')
         exercise_id = data.get('id')
         chat_id = data.get('chat_id')
+        name = data.get('name')
+        phone = data.get('phone')
         user = User.objects.get(username=username)
 
         data = {
@@ -176,6 +178,8 @@ class ScheduleView(APIView):
         data['exercise_date'] = day_request
         data['exercise_type'] = int(exercise_id)
         data['chat_id'] = int(chat_id)
+        data['name'] = name
+        data['phone'] = phone
 
         serializer = UserDataSerializer(data=data)
         if serializer.is_valid():
@@ -210,7 +214,7 @@ class UserDataView(APIView):
 
         # в списке всех данных о сообщениях пользователя ищем запись
         # которая удовлетворяет условиям, которые я сам придумал
-        # по сути запись на занятие сейчас это просто еще одна запись в таблице userdata 
+        # по сути запись на занятие сейчас это просто еще одна запись в таблице userdata
         # среди других записей, надо над этим подумать
         sign_up = UserData.objects.filter(user=user, message_type="системное", message="запись на занятие")
         serializer = UserDataSerializer(sign_up, many=True)
@@ -268,11 +272,24 @@ class PlanDataView(APIView):
                     exercise_date = user.exercise_date
                     first_name = user.user.first_name
                     message = user.message
+                    name = user.name
+                    phone = user.phone
                     if message == 'запись на занятие':
-                        users_dict.append({"username": username,
-                                           "exercise_date": exercise_date,
-                                           "first_name": first_name,
-                                           "message": message})
+                        if data.get('id'):
+                            users_dict.append({"username": username,
+                                               "exercise_date": exercise_date,
+                                               "first_name": first_name,
+                                               "message": message,
+                                               "name": name,
+                                               })
+                        else:
+                            users_dict.append({"username": username,
+                                               "exercise_date": exercise_date,
+                                               "first_name": first_name,
+                                               "message": message,
+                                               "name": name,
+                                               "phone": phone,
+                                               })
             schedule_dict["users"] = users_dict
             result.append(schedule_dict)
         return Response(result, status=status.HTTP_200_OK)

@@ -20,4 +20,4 @@ class UserDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserData
         fields = ['id', 'user', 'message', 'message_type',
-                  'message_date_time', 'exercise_date', 'exercise_type', 'chat_id']
+                  'message_date_time', 'exercise_date', 'exercise_type', 'chat_id', 'name', 'phone']
